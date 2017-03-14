@@ -17,12 +17,12 @@
 
 typedef enum state_t
 {
-    STATE_ERROR                 = -1,
-    STATE_INIT                  =  0,
-    STATE_START_TIMER           =  1,
-    STATE_DATA_ACK              =  2,
-    STATE_DATA_UPLOAD           =  3,
-    STATE_IDLE                  =  4
+    STATE_ERROR,
+    STATE_INIT,
+    STATE_START_TIMER,
+    STATE_DATA_ACK,
+    STATE_DATA_UPLOAD,
+    STATE_IDLE
 } state_t;
 
 

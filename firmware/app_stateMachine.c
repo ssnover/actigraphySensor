@@ -17,6 +17,8 @@
 bool state_changed = false;
 state_t current_state = STATE_INIT;
 state_t next_state = STATE_INIT;
+const uint16_t timer_wakeup_value = 1565;
+volatile bool wakeup_flag = false;
 
 
 /* ============================================================================
@@ -50,6 +52,18 @@ void exitState(state_t state);
 
 /* Sets a timer to coordinate the periodic wake up from idle. */
 void setTimer();
+
+
+/* ============================================================================
+ * Interrupt Service Routines
+ * ============================================================================
+ */
+
+/* Sounds the alarm when it's time to wake up. */
+ISR(TIMER1_COMPA_vect)
+{
+    wakeup_flag = true;
+}
 
 
 /* ============================================================================
@@ -108,7 +122,7 @@ void enterState(state_t state)
         }
         case STATE_IDLE:
         {
-            app_actigraphyMonitor_goToIdle();
+            /* Nothing to set up. */
             break;
         }
         case STATE_ERROR:
@@ -186,13 +200,7 @@ void processState(state_t state)
         }
         case STATE_IDLE:
         {
-            int8_t wake_status = app_actigraphyMonitor_getWakeupStatus();
-            if (wake_status < 0)
-            {
-                /* Device has been sleeping for a very long time. */
-                next_state = STATE_ERROR;
-            }
-            else if (wake_status > 0)
+            if (wakeup_flag)
             {
                 /* Alarm is blaring, time to wake up. */
                 next_state = STATE_START_TIMER;
@@ -244,7 +252,7 @@ void exitState(state_t state)
         case STATE_IDLE:
         {
             /* Leave sleep mode. */
-            app_actigraphyMonitor_wakeUp();
+            wakeUp();
             break;
         }
         case STATE_ERROR:
@@ -273,5 +281,29 @@ state_t app_stateMachine_getState()
 /* Sets a timer to coordinate the periodic wake up from idle. */
 void setTimer()
 {
+    /* Assuming a 16 MHz clock source, the prescaler 1/1024 provides a clock
+     * tick every 1/16th milliseconds. */
+    TCCR1B |= (1 << CS12) | (1 << CS10);
 
+    /* Generate a number of ticks to set compare for 100 ms. */
+    OCR1AH = timer_wakeup_value >> 8;
+    OCR1AL = timer_wakeup_value & 0xff;
+
+    /* Reset timer. */
+    TCNT1 = 0;
+
+    /* Enable interrupt. */
+    TIMSK1 |= (1 << OCIE1A);
+
+    return;
+}
+
+
+/* Resets changed clocks for sleep mode and disables timer interrupt. */
+void wakeUp()
+{
+    /* Snooze the alarm. */
+    wakeup_flag = false;
+    /* Disable further interrupts. */
+    TIMSK1 &= ~(1 << OCIE1A);
 }
