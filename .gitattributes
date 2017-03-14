@@ -1,0 +1,7 @@
+# Linguist Classification Fixes
+*.h linguist-language=C
+*.pro linguist-language=KiCad
+
+# Arduino Libraries Classification
+prototype/arduino/* linguist-vendored
+*.ino linguist-vendored=false
