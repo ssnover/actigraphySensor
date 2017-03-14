@@ -18,6 +18,7 @@
 app_opstatus_t init_flag = APP_ERROR;
 app_opstatus_t rx_flag = APP_ERROR;
 app_opstatus_t upload_flag = APP_ERROR;
+uint8_t accelerometer_data[6];
 
 
 /* ============================================================================
@@ -31,10 +32,22 @@ void app_actigraphyMonitor_init()
     init_flag = APP_INIT_INCOMPLETE;
 
     spi_init();
-    lis3dh_init();
-    mcp2515_init();
+
+    if (!lis3dh_init())
+    {
+        init_flag = APP_ERROR;
+    }
+    /* Additional LIS3DH settings. */
+
+    if (!mcp2515_init())
+    {
+        init_flag = APP_ERROR;
+    }
+    /* Additional MCP2515 settings. */
 
     init_flag = APP_INIT_COMPLETE;
+
+    return;
 }
 
 
@@ -43,7 +56,21 @@ void app_actigraphyMonitor_requestData()
 {
     rx_flag = APP_WAITING_FOR_DATA;
 
-    /* Logic. */
+    uint16_t accel_temp = lis3dh_readX();
+    accelerometer_data[0] = accel_temp >> 8;
+    accelerometer_data[1] = accel_temp & 0xFF;
+
+    accel_temp = lis3dh_readY();
+    accelerometer_data[2] = accel_temp >> 8;
+    accelerometer_data[3] = accel_temp & 0xFF;
+
+    accel_temp = lis3dh_readZ();
+    accelerometer_data[4] = accel_temp >> 8;
+    accelerometer_data[5] = accel_temp & 0xFF;
+
+    rx_flag = APP_DATA_RECEIVED;
+
+    return;
 }
 
 
@@ -52,7 +79,9 @@ void app_actigraphyMonitor_sendData()
 {
     upload_flag = APP_SENDING;
 
-    /* Logic. */
+    mcp2515_sendPacket(&accelerometer_data, sizeof(accelerometer_data));
+
+    upload_flag = APP_DATA_SENT;
 }
 
 
