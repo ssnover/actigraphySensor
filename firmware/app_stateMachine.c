@@ -108,10 +108,12 @@ void enterState(state_t state)
         }
         case STATE_IDLE:
         {
+            app_actigraphyMonitor_goToIdle();
             break;
         }
         case STATE_ERROR:
         {
+            /* Currently no action in Error State. */
             break;
         }
         default:
@@ -146,6 +148,12 @@ void processState(state_t state)
             }
             break;
         }
+        case STATE_START_TIMER:
+        {
+            /* State actions are completely asynchronous. */
+            next_state = STATE_DATA_ACK;
+            break;
+        }
         case STATE_DATA_ACK:
         {
             int8_t data_status = app_actigraphyMonitor_dataReceived();
@@ -178,10 +186,22 @@ void processState(state_t state)
         }
         case STATE_IDLE:
         {
+            int8_t wake_status = app_actigraphyMonitor_getWakeupStatus();
+            if (wake_status < 0)
+            {
+                /* Device has been sleeping for a very long time. */
+                next_state = STATE_ERROR;
+            }
+            else if (wake_status > 0)
+            {
+                /* Alarm is blaring, time to wake up. */
+                next_state = STATE_START_TIMER;
+            }
             break;
         }
         case STATE_ERROR:
         {
+            /* Currently no action in Error State. */
             break;
         }
         default:
@@ -205,6 +225,11 @@ void exitState(state_t state)
             /* Nothing to clean up after an initialization. */
             break;
         }
+        case STATE_START_TIMER:
+        {
+            /* Nothing to clean up after setting timer. */
+            break;
+        }
         case STATE_DATA_ACK:
         {
             /* Nothing to clean up after data acquisition. */
@@ -218,10 +243,13 @@ void exitState(state_t state)
         }
         case STATE_IDLE:
         {
+            /* Leave sleep mode. */
+            app_actigraphyMonitor_wakeUp();
             break;
         }
         case STATE_ERROR:
         {
+            /* Currently no action in Error State. */
             break;
         }
         default:
@@ -245,5 +273,5 @@ state_t app_stateMachine_getState()
 /* Sets a timer to coordinate the periodic wake up from idle. */
 void setTimer()
 {
-    
+
 }
