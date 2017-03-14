@@ -19,9 +19,10 @@ typedef enum state_t
 {
     STATE_ERROR                 = -1,
     STATE_INIT                  =  0,
-    STATE_DATA_ACK              =  1,
-    STATE_DATA_UPLOAD           =  2,
-    STATE_IDLE                  =  3
+    STATE_START_TIMER           =  1,
+    STATE_DATA_ACK              =  2,
+    STATE_DATA_UPLOAD           =  3,
+    STATE_IDLE                  =  4
 } state_t;
 
 

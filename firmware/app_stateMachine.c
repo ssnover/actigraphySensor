@@ -48,6 +48,10 @@ void processState(state_t state);
 void exitState(state_t state);
 
 
+/* Sets a timer to coordinate the periodic wake up from idle. */
+void setTimer();
+
+
 /* ============================================================================
  * Module Function Definitions
  * ============================================================================
@@ -84,6 +88,12 @@ void enterState(state_t state)
             app_actigraphyMonitor_init();
             break;
         }
+        case STATE_START_TIMER:
+        {
+            /* Sets the timer for periodic wake up. */
+            setTimer();
+            break;
+        }
         case STATE_DATA_ACK:
         {
             /* Request data from sensor. */
@@ -92,6 +102,8 @@ void enterState(state_t state)
         }
         case STATE_DATA_UPLOAD:
         {
+            /* Send the data packet to the transceiver. */
+            app_actigraphyMonitor_sendData();
             break;
         }
         case STATE_IDLE:
@@ -151,6 +163,17 @@ void processState(state_t state)
         }
         case STATE_DATA_UPLOAD:
         {
+            int8_t data_status = app_actigraphyMonitor_dataUploaded();
+            if (data_status < 0)
+            {
+                /* The request has timed out or an error has occurred. */
+                next_state = STATE_ERROR;
+            }
+            else if (data_status > 0)
+            {
+                /* Complete packet has been sent. */
+                next_state = STATE_IDLE;
+            }
             break;
         }
         case STATE_IDLE:
@@ -189,6 +212,8 @@ void exitState(state_t state)
         }
         case STATE_DATA_UPLOAD:
         {
+            /* Remove sent data from queue. */
+            app_actigraphyMonitor_clearUploadQueue();
             break;
         }
         case STATE_IDLE:
@@ -214,4 +239,11 @@ void exitState(state_t state)
 state_t app_stateMachine_getState()
 {
     return current_state;
+}
+
+
+/* Sets a timer to coordinate the periodic wake up from idle. */
+void setTimer()
+{
+    
 }
