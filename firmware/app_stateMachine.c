@@ -148,17 +148,21 @@ void processState(state_t state)
     {
         case STATE_INIT:
         {
-            /* TODO: Replace init status returns with enum typedef. */
-            int8_t init_status = app_actigraphyMonitor_getInitStatus();
-            if (init_status < 0)
-            {
-                /* There was an error during initialization. */
-                next_state = STATE_ERROR;
-            }
-            else if (init_status > 0)
+            app_opstatus_t status = app_actigraphyMonitor_getInitStatus();
+
+            if (status == APP_INIT_COMPLETE)
             {
                 /* Initialization completed successfully. */
-                next_state = STATE_DATA_ACK;
+                next_state = STATE_START_TIMER;
+            }
+            else if (status == APP_INIT_INCOMPLETE)
+            {
+                /* Initialization in progress. */
+            }
+            else
+            {
+                /* Error has occurred during initialization. */
+                next_state = STATE_ERROR;
             }
             break;
         }
@@ -170,31 +174,41 @@ void processState(state_t state)
         }
         case STATE_DATA_ACK:
         {
-            int8_t data_status = app_actigraphyMonitor_dataReceived();
-            if (data_status < 0)
-            {
-                /* The request timed out. */
-                next_state = STATE_ERROR;
-            }
-            else if (data_status > 0)
+            app_opstatus_t status = app_actigraphyMonitor_dataReceived();
+
+            if (status == APP_DATA_RECEIVED)
             {
                 /* Data was received. */
                 next_state = STATE_DATA_UPLOAD;
+            }
+            else if (status == APP_WAITING_FOR_DATA)
+            {
+                /* Waiting for sensor to send data. */
+            }
+            else
+            {
+                /* Error has occurred with reading sensor. */
+                next_state = STATE_ERROR;
             }
             break;
         }
         case STATE_DATA_UPLOAD:
         {
-            int8_t data_status = app_actigraphyMonitor_dataUploaded();
-            if (data_status < 0)
-            {
-                /* The request has timed out or an error has occurred. */
-                next_state = STATE_ERROR;
-            }
-            else if (data_status > 0)
+            app_opstatus_t status = app_actigraphyMonitor_dataUploaded();
+            
+            if (status == APP_DATA_SENT)
             {
                 /* Complete packet has been sent. */
                 next_state = STATE_IDLE;
+            }
+            else if (status == APP_SENDING)
+            {
+                /* Data upload in process. */
+            }
+            else
+            {
+                /* The request has timed out or an error has occurred. */
+                next_state = STATE_ERROR;
             }
             break;
         }
