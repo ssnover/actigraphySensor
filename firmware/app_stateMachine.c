@@ -6,6 +6,7 @@
  */
 
 #include <stdbool.h>
+#include <avr/interrupt.h>
 #include "app_stateMachine.h"
 #include "app_actigraphyMonitor.h"
 
@@ -19,6 +20,7 @@ state_t current_state = STATE_INIT;
 state_t next_state = STATE_INIT;
 const uint16_t timer_wakeup_value = 1565;
 volatile bool wakeup_flag = false;
+/* TODO: Add record of states for debugging. */
 
 
 /* ============================================================================
@@ -195,7 +197,7 @@ void processState(state_t state)
         case STATE_DATA_UPLOAD:
         {
             app_opstatus_t status = app_actigraphyMonitor_dataUploaded();
-            
+
             if (status == APP_DATA_SENT)
             {
                 /* Complete packet has been sent. */
