@@ -80,10 +80,14 @@ void enterState(state_t state)
     {
         case STATE_INIT:
         {
+            /* Initialize hardware peripherals and slave devices. */
+            app_actigraphyMonitor_init();
             break;
         }
         case STATE_DATA_ACK:
         {
+            /* Request data from sensor. */
+            app_actigraphyMonitor_requestData();
             break;
         }
         case STATE_DATA_UPLOAD:
@@ -116,10 +120,33 @@ void processState(state_t state)
     {
         case STATE_INIT:
         {
+            /* TODO: Replace init status returns with enum typedef. */
+            int8_t init_status = app_actigraphyMonitor_getInitStatus();
+            if (init_status < 0)
+            {
+                /* There was an error during initialization. */
+                next_state = STATE_ERROR;
+            }
+            else if (init_status > 0)
+            {
+                /* Initialization completed successfully. */
+                next_state = STATE_DATA_ACK;
+            }
             break;
         }
         case STATE_DATA_ACK:
         {
+            int8_t data_status = app_actigraphyMonitor_dataReceived();
+            if (data_status < 0)
+            {
+                /* The request timed out. */
+                next_state = STATE_ERROR;
+            }
+            else if (data_status > 0)
+            {
+                /* Data was received. */
+                next_state = STATE_DATA_UPLOAD;
+            }
             break;
         }
         case STATE_DATA_UPLOAD:
@@ -152,10 +179,12 @@ void exitState(state_t state)
     {
         case STATE_INIT:
         {
+            /* Nothing to clean up after an initialization. */
             break;
         }
         case STATE_DATA_ACK:
         {
+            /* Nothing to clean up after data acquisition. */
             break;
         }
         case STATE_DATA_UPLOAD:
