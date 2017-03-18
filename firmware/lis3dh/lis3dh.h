@@ -47,10 +47,10 @@ typedef enum lis3dh_reg_t
 
 typedef enum lis3dh_range_t
 {
-  LIS3DH_RANGE_16_G         = 0b11,
-  LIS3DH_RANGE_8_G          = 0b10,
-  LIS3DH_RANGE_4_G          = 0b01,
-  LIS3DH_RANGE_2_G          = 0b00
+  LIS3DH_RANGE_16G          = 0b11,
+  LIS3DH_RANGE_8G           = 0b10,
+  LIS3DH_RANGE_4G           = 0b01,
+  LIS3DH_RANGE_2G           = 0b00
 } lis3dh_range_t;
 
 
@@ -64,16 +64,16 @@ typedef enum lis3dh_axis_t
 
 typedef enum lis3dh_datarate_t
 {
-  LIS3DH_DATARATE_400_HZ     = 0b0111,
-  LIS3DH_DATARATE_200_HZ     = 0b0110,
-  LIS3DH_DATARATE_100_HZ     = 0b0101,
-  LIS3DH_DATARATE_50_HZ      = 0b0100,
-  LIS3DH_DATARATE_25_HZ      = 0b0011,
-  LIS3DH_DATARATE_10_HZ      = 0b0010,
-  LIS3DH_DATARATE_1_HZ       = 0b0001,
-  LIS3DH_DATARATE_POWERDOWN  = 0,
-  LIS3DH_DATARATE_LOWPOWER_1K6HZ  = 0b1000,
-  LIS3DH_DATARATE_LOWPOWER_5KHZ  =  0b1001
+  LIS3DH_DATARATE_400HZ             = 0b0111,
+  LIS3DH_DATARATE_200HZ             = 0b0110,
+  LIS3DH_DATARATE_100HZ             = 0b0101,
+  LIS3DH_DATARATE_50HZ              = 0b0100,
+  LIS3DH_DATARATE_25HZ              = 0b0011,
+  LIS3DH_DATARATE_10HZ              = 0b0010,
+  LIS3DH_DATARATE_1HZ               = 0b0001,
+  LIS3DH_DATARATE_POWERDOWN         = 0b0000,
+  LIS3DH_DATARATE_LOWPOWER_1K6HZ    = 0b1000,
+  LIS3DH_DATARATE_LOWPOWER_5KHZ     = 0b1001
 } lis3dh_datarate_t;
 
 
