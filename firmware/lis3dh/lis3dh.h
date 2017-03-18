@@ -77,4 +77,71 @@ typedef enum lis3dh_datarate_t
 } lis3dh_datarate_t;
 
 
+/* ============================================================================
+ * Struct Type Definitions
+ * ============================================================================
+*/
+
+typedef struct lis3dh_accelerometer_data_t
+{
+    uint16_t x;
+    uint16_t y;
+    uint16_t z;
+} lis3dh_accelerometer_data_t;
+
+
+/* ============================================================================
+ * Public Function Declarations
+ * ============================================================================
+*/
+
+/* Initializes the accelerometer to a default configuration with SPI
+ * communication enabled.
+ *
+ * Returns:
+ *  - A boolean indicating if the initialization was successful.
+*/
+bool lis3dh_init();
+
+
+/* Set the maximum and minimum range of the acceleration measurements.
+ *
+ * Arguments:
+ *  - range: The measurement range for the sensor values.
+ */
+void lis3dh_setRange(lis3dh_range_t range);
+
+
+/* Get the current range setting for the LIS3DH acceleration measurements.
+ *
+ * Returns:
+ *  - An enum representing the range setting.
+ */
+lis3dh_range_t lis3dh_getRange();
+
+
+/* Set the sampling rate of the LIS3DH accelerometer.
+ *
+ * Arguments:
+ *  - data_rate: The rate the accelerometer updates it's internal register
+ *               values.
+ */
+void lis3dh_setDataRate(lis3dh_datarate_t data_rate);
+
+
+/* Get the current sampling rate setting for the LIS3DH.
+ *
+ * Returns:
+ *  - An enum representing the sampling rate setting.
+ */
+lis3dh_datarate_t lis3dh_getDataRate();
+
+
+/* Request the current acceleration data from the LIS3DH.
+ *
+ * Returns:
+ *  - A struct containing acceleration data in 3 dimensions.
+ */
+lis3dh_accelerometer_data_t lis3dh_read();
+
 #endif /* LIS3DH_H */
