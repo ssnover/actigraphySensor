@@ -62,7 +62,7 @@ void setTimer();
  */
 
 /* Sounds the alarm when it's time to wake up. */
-ISR(TIMER1_COMPA_vect)
+ISR (TIMER1_COMPA_vect)
 {
     wakeup_flag = true;
 }
