@@ -9,6 +9,15 @@
 #include <avr/io.h>
 
 /* ============================================================================
+ * Private Preprocessor Macros
+ * ============================================================================
+*/
+#define SPI_DDR             DDRB
+#define SPI_PORT            PORTB
+#define LIS3DH_CS           PB1
+#define LIS3DH_DEVICE_ID    0b00110011
+
+/* ============================================================================
  * Private Module Variables
  * ============================================================================
 */
@@ -53,7 +62,7 @@ void writeRegister(lis3dh_reg_t reg_addr, uint8_t data);
 bool lis3dh_init()
 {
     /* Make sure the chip select pin is set as output. */
-    DDRB |= (1 << LIS3DH_CS);
+    SPI_DDR |= (1 << LIS3DH_CS);
 
     if (readRegister(LIS3DH_REG_WHOAMI) != LIS3DH_DEVICE_ID)
     {
@@ -128,12 +137,25 @@ lis3dh_accelerometer_data_t lis3dh_read()
 /* Read a value from one of the LIS3DH's registers. */
 uint8_t readRegister(lis3dh_reg_t reg_addr)
 {
+    SPI_PORT &= ~(1 << LIS3DH_CS);
+    /* Setting bit 7 to 1 in order to denote a read. */
+    spi_transfer(reg_addr | 0b10000000);
+    /* Send nothing, but read in the bytes received. */
+    uint8_t data = spi_transfer(0x00);
 
+    SPI_PORT |= (1 << LIS3DH_CS);
+
+    return data;
 }
 
 
 /* Write data to one of the LIS3DH's internal registers. */
 void writeRegister(lis3dh_reg_t reg_addr, uint8_t data)
 {
-
+    SPI_PORT &= ~(1 << LIS3DH_CS);
+    spi_transfer(reg_addr);
+    spi_transfer(data);
+    SPI_PORT |= (1 << LIS3DH_CS);
+    
+    return;
 }
