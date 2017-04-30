@@ -39,6 +39,16 @@ typedef enum can_baud_t
 } can_baud_t;
 
 
+typedef enum mcp_mode_t
+{
+    MCP2515_MODE_CONFIG    = 4,
+    MCP2515_MODE_SLEEP     = 1,
+    MCP2515_MODE_LISTEN    = 3,
+    MCP2515_MODE_LOOPBACK  = 2,
+    MCP2515_MODE_NORMAL    = 0,
+} mcp_mode_t;
+
+
 /* ============================================================================
  * Public Function Declarations
  * ============================================================================
@@ -55,5 +65,10 @@ typedef enum can_baud_t
  */
 bool mcp2515_init(can_baud_t baud);
 
+
+void mcp2515_setMode(mcp_mode_t);
+
+
+void mcp2515_setTransmitInterrupt(mcp_setting_t setting);
 
 #endif /* MCP2515_H */
