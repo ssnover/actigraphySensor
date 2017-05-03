@@ -280,9 +280,30 @@ void mcp2515_setMode(mcp_mode_t mode)
 }
 
 
-void mcp2515_transmitMessage(mcp2515_message_S * message)
+bool mcp2515_transmitMessage(mcp2515_message_S * message)
 {
-    
+    /* Find an empty buffer and load it. */
+    mcp2515_txbnctrl_S buf_ctrl.reg = readRegister(MCP2515_TXB0CTRL);
+    if (!buf_ctrl.txreq)
+    {
+        return loadTransmitBuffer(MCP2515_TX_BUFFER_0, message);
+    }
+
+    buf_ctrl.reg = readRegister(MCP2515_TXB1CTRL);
+    if (!buf_ctrl.txreq)
+    {
+        return loadTransmitBuffer(MCP2515_TX_BUFFER_1, message);
+    }
+
+    buf_ctrl.reg = readRegister(MCP2515_TXB2CTRL);
+    if (!buf_ctrl.txreq)
+    {
+        return loadTransmitBuffer(MCP2515_TX_BUFFER_2, message);
+    }
+
+    /* No empty transmit buffers at this time. */
+    return false;
+
 }
 
 
