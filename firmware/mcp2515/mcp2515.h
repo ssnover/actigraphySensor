@@ -50,6 +50,19 @@ typedef enum mcp_mode_t
 
 
 /* ============================================================================
+ * Public Structure Type Definitions
+ * ============================================================================
+*/
+
+typedef struct mcp2515_message_S
+{
+    uint16_t id;
+    uint8_t data[8];
+    uint8_t dlc;
+} mcp2515_message_S;
+
+
+/* ============================================================================
  * Public Function Declarations
  * ============================================================================
 */
@@ -67,6 +80,9 @@ bool mcp2515_init(can_baud_t baud);
 
 
 void mcp2515_setMode(mcp_mode_t);
+
+
+void mcp2515_transmitMessage(mcp2515_message_S * message);
 
 
 void mcp2515_setTransmitInterrupt(mcp_setting_t setting);

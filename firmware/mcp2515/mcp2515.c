@@ -240,8 +240,8 @@ static mcp_mode_t deviceMode = MCP2515_MODE_CONFIG;
 */
 
 void spiReset(void);
-void spiWriteRegister(mcp2515_registers_t reg, uint8_t data);
-uint8_t spiReadRegister(mcp2515_registers_t reg);
+void writeRegister(mcp2515_registers_t reg, uint8_t data);
+uint8_t readRegister(mcp2515_registers_t reg);
 void setBaudRate(void);
 void initBuffers(void);
 void setFilterMode(mcp2515_idFilterMode_t mode);
@@ -271,12 +271,18 @@ void mcp2515_setMode(mcp_mode_t mode)
     deviceMode = mode;
     mcp2515_canctrl_S canctrl;
 
-    canctrl.reg = spiReadRegister(MCP2515_CANCTRL);
+    canctrl.reg = readRegister(MCP2515_CANCTRL);
     canctrl.reqop = (uint8_t) mode;
 
-    spiWriteRegister(MCP2515_CANCTRL, canctrl.reg);
+    writeRegister(MCP2515_CANCTRL, canctrl.reg);
 
     return;
+}
+
+
+void mcp2515_transmitMessage(mcp2515_message_S * message)
+{
+    
 }
 
 
@@ -286,9 +292,9 @@ void setBaudRate(void)
      * but for now this sets for external oscillator of 16 MHz and bus
      * baud rate of 250 Kbps. */
 
-    spiWriteRegister(MCP2515_CNF1, 0x41);
-    spiWriteRegister(MCP2515_CNF2, 0xF1);
-    spiWriteRegister(MCP2515_CNF3, 0x85);
+    writeRegister(MCP2515_CNF1, 0x41);
+    writeRegister(MCP2515_CNF2, 0xF1);
+    writeRegister(MCP2515_CNF3, 0x85);
 
     return;
 }
@@ -304,32 +310,32 @@ void initBuffers(void)
      */
     for (uint8_t i = 0; i < 14; i++)
     {
-        spiWriteRegister(MCP2515_TXB0CTRL+i, 0x00);
-        spiWriteRegister(MCP2515_TXB1CTRL+i, 0x00);
-        spiWriteRegister(MCP2515_TXB2CTRL+i, 0x00);
+        writeRegister(MCP2515_TXB0CTRL+i, 0x00);
+        writeRegister(MCP2515_TXB1CTRL+i, 0x00);
+        writeRegister(MCP2515_TXB2CTRL+i, 0x00);
     }
 
     /* ============= CLEARING RX MASKS & FILTERS ============= */
-    spiWriteRegister(MCP2515_RXF0SIDH, 0x00);
-    spiWriteRegister(MCP2515_RXF1SIDH, 0x00);
-    spiWriteRegister(MCP2515_RXF2SIDH, 0x00);
-    spiWriteRegister(MCP2515_RXF3SIDH, 0x00);
-    spiWriteRegister(MCP2515_RXF4SIDH, 0x00);
-    spiWriteRegister(MCP2515_RXF5SIDH, 0x00);
-    spiWriteRegister(MCP2515_RXF0SIDL, 0x00);
-    spiWriteRegister(MCP2515_RXF1SIDL, 0x00);
-    spiWriteRegister(MCP2515_RXF2SIDL, 0x00);
-    spiWriteRegister(MCP2515_RXF3SIDL, 0x00);
-    spiWriteRegister(MCP2515_RXF4SIDL, 0x00);
-    spiWriteRegister(MCP2515_RXF5SIDL, 0x00);
-    spiWriteRegister(MCP2515_RXM0SIDH, 0x00);
-    spiWriteRegister(MCP2515_RXM1SIDH, 0x00);
-    spiWriteRegister(MCP2515_RXM0SIDL, 0x00);
-    spiWriteRegister(MCP2515_RXM1SIDL, 0x00);
+    writeRegister(MCP2515_RXF0SIDH, 0x00);
+    writeRegister(MCP2515_RXF1SIDH, 0x00);
+    writeRegister(MCP2515_RXF2SIDH, 0x00);
+    writeRegister(MCP2515_RXF3SIDH, 0x00);
+    writeRegister(MCP2515_RXF4SIDH, 0x00);
+    writeRegister(MCP2515_RXF5SIDH, 0x00);
+    writeRegister(MCP2515_RXF0SIDL, 0x00);
+    writeRegister(MCP2515_RXF1SIDL, 0x00);
+    writeRegister(MCP2515_RXF2SIDL, 0x00);
+    writeRegister(MCP2515_RXF3SIDL, 0x00);
+    writeRegister(MCP2515_RXF4SIDL, 0x00);
+    writeRegister(MCP2515_RXF5SIDL, 0x00);
+    writeRegister(MCP2515_RXM0SIDH, 0x00);
+    writeRegister(MCP2515_RXM1SIDH, 0x00);
+    writeRegister(MCP2515_RXM0SIDL, 0x00);
+    writeRegister(MCP2515_RXM1SIDL, 0x00);
 
     /* ============= CLEARING RX CONFIG ============= */
-    spiWriteRegister(MCP2515_RXB0CTRL, 0x00);
-    spiWriteRegister(MCP2515_RXB1CTRL, 0x00);
+    writeRegister(MCP2515_RXB0CTRL, 0x00);
+    writeRegister(MCP2515_RXB1CTRL, 0x00);
 
     return;
 }
@@ -338,7 +344,7 @@ void initBuffers(void)
 void setFilterMode(mcp2515_idFilterMode_t mode)
 {
     mcp2515_rxbnctrl_S ctrl;
-    ctrl.reg = spiReadRegister(MCP2515_RXB0CTRL);
+    ctrl.reg = readRegister(MCP2515_RXB0CTRL);
     ctrl.rxm = (uint8_t) mode;
 
     return;
@@ -347,18 +353,33 @@ void setFilterMode(mcp2515_idFilterMode_t mode)
 
 void spiReset(void)
 {
+    spi_select(MCP2515_CS);
     spi_transfer(CMD_SPI_RESET);
+    spi_deselect(MCP2515_CS);
+
     return;
 }
 
 
-void spiWriteRegister(mcp2515_register_t reg, uint8_t data)
+void writeRegister(mcp2515_register_t reg, uint8_t data)
 {
+    spi_select(MCP2515_CS);
+    spi_transfer((uint8_t) reg);
+    spi_transfer(data);
+    spi_deselect(MCP2515_CS);
 
+    return;
 }
 
 
-uint8_t spiReadRegister(mcp2515_register_t reg)
+uint8_t readRegister(mcp2515_register_t reg)
 {
+    uint8_t data;
 
+    spi_select(MCP2515_CS);
+    spi_transfer((uint8_t) reg);
+    data = spi_transfer(0);
+    spi_deselect(MCP2515_CS);
+
+    return data;
 }
