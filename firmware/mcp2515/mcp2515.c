@@ -69,6 +69,15 @@ typedef enum mcp2515_idFilterMode_t
 } mcp2515_idFilterMode_t;
 
 
+typedef enum mcp2515_txbuffer_t
+{
+    MCP2515_TX_BUFFER_0 = 0,
+    MCP2515_TX_BUFFER_1 = 1,
+    MCP2515_TX_BUFFER_2 = 2,
+    MCP2515_NUM_TX_BUFFERS,
+} mcp2515_txbuffer_t;
+
+
 /* ============================================================================
  * Private Structure Definitions
  * ============================================================================
@@ -304,6 +313,33 @@ bool mcp2515_transmitMessage(mcp2515_message_S * message)
     /* No empty transmit buffers at this time. */
     return false;
 
+}
+
+
+/* Loads a CAN message into the selected buffer. */
+bool loadTransmitBuffer(mcp2515_txbuffer_t buffer, mcp2515_message_S * message)
+{
+    switch (buffer)
+    {
+        case MCP2515_TX_BUFFER_0:
+        {
+            break;
+        }
+        case MCP2515_TX_BUFFER_1:
+        {
+            break;
+        }
+        case MCP2515_TX_BUFFER_2:
+        {
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+
+    return false;
 }
 
 
