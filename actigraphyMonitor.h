@@ -23,6 +23,19 @@ typedef enum actigraphyMonitor_state_E
 
 
 /* ============================================================================
+ * Public Structure Type Definitions
+ * ============================================================================
+*/
+
+typedef struct actigraphyMonitor_data_S
+{
+    uint16_t acceleration_x;
+    uint16_t acceleration_y;
+    uint16_t acceleration_z;
+} actigraphyMonitor_data_S;
+
+
+/* ============================================================================
  * Public Function Declarations
  * ============================================================================
 */
@@ -38,5 +51,21 @@ void actigraphyMonitor_init(void);
  *  The upcoming state of the actigraphy monitor state machine.
 */
 actigraphyMonitor_state_E actigraphyMonitor_run(void);
+
+
+/* Tell the actigraphy monitor to sample the accelerometer. */
+void actigraphyMonitor_sampleAlert(void);
+
+
+/* Determines if the actigraphy monitor has finished sampling the sensor. */
+bool actigraphyMonitor_dataReady(void);
+
+
+/* Copies the most up to date sensor values into the struct passed to it. 
+ *
+ * Arguments:
+ *  - data: The location to put the copy of the sensor data. 
+*/
+void actigraphyMonitor_getData(actigraphyMonitor_data_S * data);
 
 #endif /* ACTIGRAPHY_MONITOR_H */
