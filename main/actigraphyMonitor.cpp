@@ -3,29 +3,24 @@
  * Author: Shane Snover
  */
 
-#include <stdbool.h>
-#include "actigraphyMonitor.h"
 #include "Adafruit_LIS3DH.h"
-
-namespace /* Unnamed namespace */
-{
-
+#include "actigraphyMonitor.h"
 
 /* ============================================================================
  * Private Function Declarations
  * ============================================================================
 */
-void enterState(void);
-void processState(void);
-void exitState(void);
-
+static void enterState(void);
+static void processState(void);
+static void exitState(void);
 
 /* ============================================================================
  * Private Module Variables
  * ============================================================================
 */
-actigraphyMonitor_state_E current_state, next_state;
-bool state_changed;
+
+static actigraphyMonitor_state_E current_state, next_state;
+static bool state_changed;
 Adafruit_LIS3DH sensor;
 bool sensor_initialized;
 const uint8_t SENSOR_CHIP_SELECT_PIN = 10;
@@ -33,7 +28,6 @@ actigraphyMonitor_data_S sensor_data;
 bool data_ready;
 bool sample_requested;
 bool application_error;
-
 
 /* ============================================================================
  * Module Function Definitions
@@ -51,7 +45,6 @@ void actigraphyMonitor_init(void)
 
     return;
 }
-
 
 actigraphyMonitor_state_E actigraphyMonitor_run(void)
 {
@@ -73,7 +66,6 @@ actigraphyMonitor_state_E actigraphyMonitor_run(void)
     return current_state;
 }
 
-
 void actigraphyMonitor_sampleAlert(void)
 {
     if (sample_requested)
@@ -89,12 +81,10 @@ void actigraphyMonitor_sampleAlert(void)
     return;
 }
 
-
 bool actigraphyMonitor_dataReady(void)
 {
     return data_ready;
 }
-
 
 void actigraphyMonitor_getData(actigraphyMonitor_data_S * exportData)
 {
@@ -110,7 +100,6 @@ void actigraphyMonitor_getData(actigraphyMonitor_data_S * exportData)
         application_error = true;
     }
 }
-
 
 void enterState(void)
 {
@@ -136,7 +125,6 @@ void enterState(void)
     return;
 }
 
-
 void processState(void)
 {
     switch (current_state)
@@ -145,8 +133,8 @@ void processState(void)
         {
             if (sensor_initialized)
             {
-                sensor.setDataRate(LIS3DH_DATARATE_25HZ);
-                sensor.setRange(LIS3DH_RANGE_2G);
+                sensor.setDataRate(LIS3DH_DATARATE_25_HZ);
+                sensor.setRange(LIS3DH_RANGE_2_G);
                 next_state = ACTIGRAPHY_STATE_MEASURE;
             }
             else
@@ -187,7 +175,6 @@ void processState(void)
     return;
 }
 
-
 void exitState(void)
 {
     /* Cleanup */
@@ -215,5 +202,3 @@ void exitState(void)
     }
     return;
 }
-
-} /* Unnamed namespace */

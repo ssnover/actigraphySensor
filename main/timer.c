@@ -7,26 +7,17 @@
 extern "C" {
 #endif
 
+#include <avr/io.h>
 #include "timer.h"
 
 
 #define TIMER_RELOAD_H      (0xC1)
 #define TIMER_RELOAD_L      (0x80)
 
-/* SFRs */
-/* TCCR1B */
-#define CS12    (2)
-#define CS11    (1)
-#define CS10    (0)
-/* TIMSK1 */
-#define TOIE1   (0)
-
 /* ============================================================================
  * Private Function Declarations
  * ============================================================================
 */
-
-void timer_reset(void);
 
 /* ============================================================================
  * Module Function Definitions
@@ -50,8 +41,10 @@ void timer_init(void)
     return;
 }
 
+
 void timer_reset(void)
 {
+    /* The high byte must be written before the low byte. */
     TCNT1H = TIMER_RELOAD_H;
     TCNT1L = TIMER_RELOAD_L;
     return;

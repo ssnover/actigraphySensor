@@ -17,9 +17,9 @@
  * Global Variables
  * ============================================================================
 */
+
 volatile bool wakeup;
 uint8_t loop_index;
-
 
 /* ============================================================================
  * Interrupt Service Routines
@@ -31,7 +31,6 @@ ISR(TIMER1_OVF_vect)
     wakeup = true;
     timer_reset();
 }
-
 
 /* ============================================================================
  * Module Function Definitions
